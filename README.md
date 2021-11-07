@@ -1,4 +1,4 @@
-Our project is a combination of the game "Polytopia" with some 112 flair thrown in for fun :)
+
 # Project elements:
 1) Map generation
 2) Minimax AI
