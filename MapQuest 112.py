@@ -1,21 +1,17 @@
 from cmu_112_graphics import *
 from gameRules import *
+
 def appStarted(app):
 
+    app.money = 5
+
     #board
-    '''
-    app.board = [
-                   ['BaseKosbie','Grass','OutpostKosbie','Grass','Grass','Ocean'],
-                   ['Grass','Grass','Grass','Farm','Grass','Ocean'],
-                   ['OutpostKosbie','Grass','Grass','Grass','Grass','Ocean'],
-                   ['Grass','Grass','Farm','Grass','Outpost','Grass'],
-                   ['Grass','Grass','Grass','Mountain','Grass','Grass'],
-                   ['Grass','Grass','Grass','Mountain','Grass','BaseTaylor']
-                ]
-    '''
     app.board = generateMap(6)
     
     app.characters = []
+    app.selected = None
+    app.creatable = []
+    app.moveable = []
 
     app.mode = 'titleScreen'
     app.border = 30
@@ -53,10 +49,42 @@ def appStarted(app):
     app.archerT = app.scaleImage(app.archerT, app.squareLength/100)
     app.knightK = app.loadImage('Images/TA sprites/horseriders/zhara_horserider.png')
     app.knightK = app.scaleImage(app.knightK, app.squareLength/100)
+    app.knightT = app.loadImage('Images/TA sprites/horseriders/kian_horserider.png')
+    app.knightT = app.scaleImage(app.knightT, app.squareLength/100)
+    app.warriorK = app.loadImage('Images/TA sprites/warriors/anitawarrior.png')
+    app.warriorK = app.scaleImage(app.warriorK, app.squareLength/100)
+    app.warriorT = app.loadImage('Images/TA sprites/warriors/warriorben.png')
+    app.warriorT = app.scaleImage(app.warriorT, app.squareLength/100)
     
-    #app.warriorBen = app.loadImage('warriorben.png')
-    #app.warriorBen = app.scaleImage(app.warriorBen, app.squareLength/100)
+def gameMode_mousePressed(app,event):
+    row = getDim(app,event.y)
+    col = getDim(app,event.x)
+    
+    if app.turn == 0:
+        if app.selected != None:
+            if {row,col} in app.moveable:
+                move(app,row,col)
 
+        elif 'Outpost' in app.board[row][col] or 'Base' in app.board[row][col]:
+            app.selected = {row,col}
+            generateCreatable(app,row,col)
+        
+        soldier = soldierSelected(app,row,col)
+        if soldier != None:
+            app.selected = soldier
+            generateMoves(app,row,col)
+
+def getDim(app,dim):
+    return dim // app.squareLength
+
+def soldierSelected(app,row,col):
+    for character in app.characters:
+        if character.x == col and character.y == row:
+            return character
+    return None
+
+        
+    
 def gameMode_redrawAll(app,canvas):
     drawBoard(app,canvas)
     drawCharacters(app,canvas)
@@ -67,31 +95,31 @@ def drawCharacters(app,canvas):
             if character.owner == 'Kosbie':
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.archerK))
             else:
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.archerT))
         
         if type(character) == Soldier:
             if character.owner == 'Kosbie':
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.warriorK))
             else:
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.warriorT))
 
         if type(character) == Knight:
             if character.owner == 'Kosbie':
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.knightK))
             else:
                 canvas.create_image(character.x * app.squareLength + app.border + app.squareLength // 2,
                                     character.y * app.squareLength + app.border + app.squareLength //2,
-                                    image=ImageTk.PhotoImage(app.grassBackground))
+                                    image=ImageTk.PhotoImage(app.knightT))
 
 
 #draws images for each terrain
