@@ -16,7 +16,7 @@ class Piece(object):
     def getY (self):
         return self.y
 
-    def generateMovesAllowed(self,board):
+    def generateMovesAllowed(self,board,characters):
         generatedMovesAllowed = []
         for dx in range((-1*self.movesAllowed), (self.movesAllowed)+1):
             for dy in range((-1*self.movesAllowed), (self.movesAllowed)+1):
@@ -24,6 +24,14 @@ class Piece(object):
                     continue
                 if board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
                     generatedMovesAllowed.append((self.x+dx,self.y+dy))
+
+        #Check if player is in the generatedMovesAllowed: 
+        charactersOnBoardCords = []
+        for character in characters:
+            charactersOnBoardCords.append((character.x, character.y))
+        for cord in generatedMovesAllowed:
+            if cord in charactersOnBoardCords:
+                generatedMovesAllowed.remove(cord)
         return generatedMovesAllowed
 
 class Soldier(Piece):
