@@ -79,16 +79,17 @@ class Piece(object):
         if self.getPieceInCell(targetRow,targetCol,app) == None: 
             self.x = targetCol
             self.y = targetRow
-        
-        if enemyPiece == None: 
+            if 'basetaylor' in app.board[targetRow][targetCol].lower() and self.owner == 'Kosbie':
+                app.gameState = 1
+            
+            if 'basekosbie' in app.board[targetRow][targetCol].lower() and self.owner == 'Taylor':
+                app.gameState = 2
+            
             if 'outpost' in app.board[targetRow][targetCol].lower():
                 app.board[targetRow][targetCol] = "Outpost" + self.owner
 
             if 'farm' in app.board[targetRow][targetCol].lower():
                 app.board[targetRow][targetCol] = "Farm" + self.owner
-
-            self.x = targetCol
-            self.y = targetRow
 
         
         for dx in range(-1,2):                                                  
