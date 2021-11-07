@@ -28,6 +28,8 @@ def appStarted(app):
     app.cols = 6 #len(app.board[0])
 
     #loading images
+    app.cloudBackground = app.loadImage('Images/tiles/fog/fog_tile.png')
+    app.cloudBackground = app.scaleImage(app.cloudBackground, app.squareLength/100)
     app.grassBackground = app.loadImage('Images/tiles/grassland/grassland_tile.png')
     app.grassBackground = app.scaleImage(app.grassBackground, app.squareLength/100)
     app.waterBackground = app.loadImage('Images/tiles/ocean/water_tile.png')
@@ -166,6 +168,16 @@ def gameMode_redrawAll(app,canvas):
     drawCharacters(app,canvas)
     drawCreateOptions(app,canvas)
     drawMovesAllowed(app,canvas)
+    drawFog(app, canvas)
+
+def drawFog(app, canvas):
+    for row in range(len(app.visibility)):
+        for col in range(len(app.visibility)):
+            if app.visibility[col][row] % 2 != 1:
+                canvas.create_image(row * app.squareLength + app.border + app.squareLength // 2,
+                                    col * app.squareLength + app.border + app.squareLength //2,
+                                    image=ImageTk.PhotoImage(app.cloudBackground))
+
 
 def drawMovesAllowed(app,canvas):
     for (row,col) in app.moveable:
