@@ -1,11 +1,14 @@
 from cmu_112_graphics import *
 from gameRules import *
 from Pieces import *
+from AI import *
 
 def appStarted(app):
 
-    app.gold = 5
+    app.gold0 = 10
+    app.gold1 = 10
     app.turn = 0
+    app.timerDelay = 500
 
     #board
     app.board = generateMap(6)
@@ -57,13 +60,13 @@ def appStarted(app):
     app.archerK = app.scaleImage(app.archerK, app.squareLength/100)
     app.archerT = app.loadImage('Images/TA sprites/archers/asad_archer.png')
     app.archerT = app.scaleImage(app.archerT, app.squareLength/100)
-    app.knightK = app.loadImage('Images/TA sprites/horseriders/zhara_horserider.png')
+    app.knightK = app.loadImage('Images/TA sprites/horseriders/anita_horserider.png')
     app.knightK = app.scaleImage(app.knightK, app.squareLength/100)
     app.knightT = app.loadImage('Images/TA sprites/horseriders/kian_horserider.png')
     app.knightT = app.scaleImage(app.knightT, app.squareLength/100)
-    app.warriorK = app.loadImage('Images/TA sprites/warriors/anitawarrior.png')
+    app.warriorK = app.loadImage('Images/TA sprites/warriors/warriorben.png')
     app.warriorK = app.scaleImage(app.warriorK, app.squareLength/100)
-    app.warriorT = app.loadImage('Images/TA sprites/warriors/warriorben.png')
+    app.warriorT = app.loadImage('Images/TA sprites/warriors/zhara_warrior.png')
     app.warriorT = app.scaleImage(app.warriorT, app.squareLength/100)
 
     app.game_background = app.loadImage('Images/game_background.png')
@@ -71,19 +74,37 @@ def appStarted(app):
 
     app.game_lore = app.loadImage('Images/game_lore.png')
 
+def gameMode_timerFired(app):
+    if app.turn == 1:
+        getGold(app)
+        getMove(app)
+        app.turn = 1 - app.turn
+    
+def getGold(app):
+    if app.turn == 0:
+        app.gold0 += 1
+        for i in app.board:
+            app.gold0 += i.count('FarmKosbie')
+    
+    else:
+        app.gold1 += 1
+        for i in app.board:
+            app.gold1 += i.count('FarmTaylor')
     
 def gameMode_mousePressed(app,event):
     row = getDim(app,event.y)
     col = getDim(app,event.x)
     
     if app.turn == 0:
+        getGold(app)
         if (row >= 0 and row < len(app.board) and
             col >= 0 and col < len(app.board)):
 
             #check if there is a piece selected
-            if app.selected != None and type(app.selected) != tuple:
+            if app.selected != None and type(app.selected) != tuple and app.selected.owner == 'Kosbie':
                 if (row,col) in app.moveable:
                     app.selected.move(app,row,col)
+                    app.turn = 1 - app.turn
                 
                 clearSelection(app)
 
@@ -91,8 +112,7 @@ def gameMode_mousePressed(app,event):
             else:
                 #check if piece there
                 soldier = soldierSelected(app,row,col)
-                print(row,col)
-                if soldier != None:
+                if soldier != None and soldier.owner == 'Kosbie':
                     app.selected = soldier
                     app.moveable = soldier.generateMovesAllowed(app)
                 
@@ -110,14 +130,20 @@ def gameMode_mousePressed(app,event):
                 if (event.x > options_center - 150 and event.x < options_center + 150 and
                     event.y > 280 and event.y < 340 and app.createable > 2):
                     app.characters.append(Knight(app.selected[1],app.selected[0],'Kosbie'))
+                    app.gold0 -= 9
+                    app.turn = 1 - app.turn
         
                 if (event.x > options_center - 150 and event.x < options_center + 150 and
                     event.y > 200 and event.y < 260 and app.createable > 1):
                     app.characters.append(Archer(app.selected[1],app.selected[0],'Kosbie'))
+                    app.gold0 -= 6
+                    app.turn = 1 - app.turn
                 
                 if (event.x > options_center - 150 and event.x < options_center + 150 and
                     event.y > 120 and event.y < 180 and app.createable > 0):
                     app.characters.append(Soldier(app.selected[1],app.selected[0],'Kosbie'))
+                    app.gold0 -= 4
+                    app.turn = 1 - app.turn
             
             clearSelection(app)
 
@@ -127,11 +153,11 @@ def clearSelection(app):
     app.createable = 0
 
 def generateCreateable(app):
-    if app.gold >= 5:
+    if app.gold0 >= 5:
         return 3
-    elif app.gold >= 3:
+    elif app.gold0 >= 3:
         return 2
-    elif app.gold >= 2:
+    elif app.gold0 >= 2:
         return 1 
     else:
         return 0
@@ -168,7 +194,8 @@ def gameMode_redrawAll(app,canvas):
     drawCharacters(app,canvas)
     drawCreateOptions(app,canvas)
     drawMovesAllowed(app,canvas)
-    drawFog(app, canvas)
+    
+    #drawFog(app, canvas)
 
 def drawFog(app, canvas):
     for row in range(len(app.visibility)):
