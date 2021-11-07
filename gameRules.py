@@ -12,8 +12,25 @@ def isExterior(x, y, dimensions):
 
 from collections import deque
 
+def checkFairness(board):
+    numOutpost = 0
+    numFarm = 0
+    for i in range(len(board)):
+        for j in range(len(board)):
+            if board[i][j] == 'Farm':
+                numFarm += 1
+            elif board[i][j] == 'Outpost':
+                numOutpost += 1
+    
+    if numOutpost < 2 or numOutpost > 5 or numFarm < 2 or numFarm > 5:
+        return False
+    return True
+                
 
 def checkMap(board):
+    if checkFairness(board) == False:
+        return False
+    
     badSquares = ['Ocean', 'Mountain']
     matrix = []
     validSquares = []
@@ -32,6 +49,9 @@ def checkMap(board):
             end = validSquares[j]
             if BFS(start, end, matrix) == -1:
                 return False
+    if checkFairness(board) == False:
+        return False
+
     return True
 
 
@@ -79,14 +99,14 @@ def generateMap(dimensions):
     taylorFarmName = farmName + taylorName
 
     #Probability Region
-    probOutpostInterior = 0.02                      #We favour placing outposts near the middle for fairness.
-    probOutpostExterior = 0.05                      
+    probOutpostInterior = 50                      #We favour placing outposts near the middle for fairness.
+    probOutpostExterior = 140                      
 
-    probFarmInterior = 0.05                         #We favour placing farms along the edges.
-    probFarmExterior = 0.02
+    probFarmInterior = 130                         #We favour placing farms along the edges.
+    probFarmExterior = 50
 
-    probOcean = 0.15                              #Oceans occupy multiple squares, so their probability is cumulative over their area.
-    probMountain = 0.2                             #Mountains are one square types, so their probabilities are not cumulative.
+    probOcean = 100                            #Oceans occupy multiple squares, so their probability is cumulative over their area.
+    probMountain = 70                            #Mountains are one square types, so their probabilities are not cumulative.
 
     while True:
         for x in range(dimensions):
@@ -94,8 +114,10 @@ def generateMap(dimensions):
                 cell = board[x][y]
                 if cell != grassName:                  #Taken, typically by an ocean as oceans exist as blocks.
                     continue
-                randVal = random.randint(0, 100) / 100 #A random integer to decide the position of the square.
-
+                randVal1 = random.randint(0, 1000)        #A random integer to decide the position of the square.
+                randVal2 = random.randint(0, 1000)
+                randVal3 = random.randint(0, 1000)
+                randVal4 = random.randint(0, 1000)
                 isBorder = isExterior(x, y, dimensions)    
 
                 if isBorder == True:
@@ -106,28 +128,26 @@ def generateMap(dimensions):
                     probOutpost = probOutpostExterior
                     probFarm = probFarmExterior
                 
-                if randVal < probOcean:
+                if randVal1 < probOcean:
                     board[x][y] = 'Ocean'
                     continue
                 
-                elif randVal < probMountain:
+                
+                
+                if randVal2 < probMountain:
                     board[x][y] = 'Mountain'
                     continue
                 
-                elif randVal < probOutpost + (probOcean + probMountain):
+                if randVal3 < probOutpost:
                     board[x][y] = 'Outpost'
                     continue
                 
-                elif randVal < probFarm + (probOcean + probMountain):
+                if randVal4 < probFarm:
                     board[x][y] = 'Farm'
-                continue
+                    continue
         
         if checkMap(board):
             return board
         board = [
-            ['grass' for i in range(dimensions)] for j in range(dimensions)
+            ['Grass' for i in range(dimensions)] for j in range(dimensions)
         ]
-    
-    
-for i in generateMap(6):
-    print(*i)
