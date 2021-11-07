@@ -25,14 +25,14 @@ class Piece(object):
                     return otherCharacter
         return None
 
-    def generateMovesAllowed(self,board,app):
+    def generateMovesAllowed(self,app):
         generatedMovesAllowed = []
         for dx in range((-1*self.movesAllowed), (self.movesAllowed)+1):
             for dy in range((-1*self.movesAllowed), (self.movesAllowed)+1):
                 if dx == 0 and dy == 0:
                     continue
-                if board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
-                    if self.owner in board[self.x + dx][self.y + dy]:
+                if app.board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
+                    if self.owner in app.board[self.x + dx][self.y + dy]:
                         continue
                     generatedMovesAllowed.append((self.x+dx,self.y+dy))
     
