@@ -1,16 +1,18 @@
 from cmu_112_graphics import *
 from gameRules import *
+from Pieces import *
 
 def appStarted(app):
 
-    app.money = 5
+    app.gold = 5
+    app.turn = 0
 
     #board
     app.board = generateMap(6)
     
     app.characters = []
     app.selected = None
-    app.creatable = []
+    app.createable = 0
     app.moveable = []
 
     app.mode = 'titleScreen'
@@ -55,13 +57,80 @@ def appStarted(app):
     app.warriorK = app.scaleImage(app.warriorK, app.squareLength/100)
     app.warriorT = app.loadImage('Images/TA sprites/warriors/warriorben.png')
     app.warriorT = app.scaleImage(app.warriorT, app.squareLength/100)
+
+    app.game_background = app.loadImage('Images/game_background.png')
+    app.game_background = app.scaleImage(app.game_background, 1/3)
+
+    app.game_lore = app.loadImage('Images/game_lore.png')
+
     
 def gameMode_mousePressed(app,event):
     row = getDim(app,event.y)
     col = getDim(app,event.x)
     
     if app.turn == 0:
-        if app.selected != None:
+        if (row >= 0 and row < len(app.board) and
+            col >= 0 and col < len(app.board)):
+
+            #check if there is a piece selected
+            if app.selected != None and type(app.selected) != tuple:
+                if (row,col) in app.moveable:
+                    move(app,row,col)
+                
+                clearSelection(app)
+
+            #if nothing is selected, then tries to select a piece or structure
+            else:
+                #check if piece there
+                soldier = soldierSelected(app,row,col)
+                print(row,col)
+                if soldier != None:
+                    app.selected = soldier
+                    app.moveable = generateMoves(app,row,col)
+                
+                #check is structure there
+                elif app.board[row][col] == 'OutpostKosbie' or app.board[row][col] == 'BaseKosbie':
+                    app.selected = (row,col)
+                    app.createable = generateCreateable(app)
+
+        #the click is outside of the game board
+        else:
+            options_center = (2 * app.border +  app.squareLength * len(app.board))
+            options_center = options_center + (app.width - options_center) // 2 
+            #creating a character
+            if type(app.selected) == tuple:
+                if (event.x > options_center - 150 and event.x < options_center + 150 and
+                    event.y > 280 and event.y < 340 and app.createable > 2):
+                    app.characters.append(Knight(app.selected[1],app.selected[0],'Kosbie'))
+        
+                if (event.x > options_center - 150 and event.x < options_center + 150 and
+                    event.y > 200 and event.y < 260 and app.createable > 1):
+                    app.characters.append(Archer(app.selected[1],app.selected[0],'Kosbie'))
+                
+                if (event.x > options_center - 150 and event.x < options_center + 150 and
+                    event.y > 120 and event.y < 180 and app.createable > 0):
+                    app.characters.append(Soldier(app.selected[1],app.selected[0],'Kosbie'))
+            
+            clearSelection(app)
+
+def clearSelection(app):
+    app.selected = None
+    app.moveable = []
+    app.createable = 0
+
+def generateCreateable(app):
+    if app.gold >= 5:
+        return 3
+    elif app.gold >= 3:
+        return 2
+    elif app.gold >= 2:
+        return 1 
+    else:
+        return 0
+
+
+
+        '''if app.selected != None:
             if {row,col} in app.moveable:
                 move(app,row,col)
 
@@ -72,10 +141,10 @@ def gameMode_mousePressed(app,event):
         soldier = soldierSelected(app,row,col)
         if soldier != None:
             app.selected = soldier
-            generateMoves(app,row,col)
+            generateMoves(app,row,col)'''
 
 def getDim(app,dim):
-    return dim // app.squareLength
+    return (dim - app.border) // app.squareLength
 
 def soldierSelected(app,row,col):
     for character in app.characters:
@@ -88,6 +157,28 @@ def soldierSelected(app,row,col):
 def gameMode_redrawAll(app,canvas):
     drawBoard(app,canvas)
     drawCharacters(app,canvas)
+    drawCreateOptions(app,canvas)
+
+def drawCreateOptions(app,canvas):
+    options_center = (2 * app.border +  app.squareLength * len(app.board))
+    options_center = options_center + (app.width - options_center) // 2 
+
+    canvas.create_text(options_center, 50, text = "Create Menu", font = 'Arial 40 underline')
+
+    if app.createable > 2:
+        canvas.create_rectangle(options_center - 150, 280, options_center + 150, 340)
+        canvas.create_text(options_center, 310, text = 'Knight\t\t5G', font = 'Arial 20')
+    
+    if app.createable > 1:
+        canvas.create_rectangle(options_center - 150, 200, options_center + 150, 260)
+        canvas.create_text(options_center, 230, text = 'Archer\t\t3G', font = 'Arial 20')
+    
+    if app.createable > 0:
+        canvas.create_rectangle(options_center - 150, 120, options_center + 150, 180)
+        canvas.create_text(options_center, 150, text = 'Soldier\t\t2G', font = 'Arial 20')
+
+
+        
 
 def drawCharacters(app,canvas):
     for character in app.characters:
@@ -124,8 +215,8 @@ def drawCharacters(app,canvas):
 
 #draws images for each terrain
 def drawBoard(app,canvas):
-    for row in range(6):
-        for col in range(6):
+    for row in range(len(app.board)):
+        for col in range(len(app.board)):
             if app.board[col][row] == 'Grass':
                 canvas.create_image(row * app.squareLength + app.border + app.squareLength // 2,
                                     col * app.squareLength + app.border + app.squareLength //2,
@@ -189,17 +280,35 @@ def drawBoard(app,canvas):
 
 
 def titleScreen_redrawAll(app,canvas):
-    canvas.create_text(app.width//2, app.height//2 - 60, text = "112 MapQuest", font = 'Arial 100')
+    canvas.create_image(app.width//2, app.height//2,
+                        image=ImageTk.PhotoImage(app.game_background))
 
-    canvas.create_rectangle(app.width // 2 - 100, app.height // 2 + 50, app.width // 2 + 100, 
-                            app.height // 2 + 150)
-    canvas.create_text(app.width//2, app.height//2 + 100, text = "Start", font = 'Arial 40')
+    canvas.create_rectangle(app.width // 2 - 100, app.height // 2 + 165, app.width // 2 + 100, 
+                            app.height // 2 + 235, fill = 'red')
+    canvas.create_text(app.width//2, app.height//2 + 200, text = "Start", font = 'Arial 40', fill = 'white')
+
+    
+
+    
 
 def titleScreen_mousePressed(app,event):
     if (event.x > app.width // 2 - 100 and event.x < app.width // 2 + 100 and
-        event.y > app.height // 2 + 50 and event.y < app.height // 2 + 150):
+        event.y > app.height // 2 + 165 and event.y < app.height // 2 + 235):
+            app.mode = 'LoreScreen'
+
+
+def LoreScreen_redrawAll(app,canvas):
+    canvas.create_image(app.width//2, app.height//2 - 75,
+                        image=ImageTk.PhotoImage(app.game_lore))
+    
+    canvas.create_rectangle(app.width // 2 - 100, app.height // 2 + 260, app.width // 2 + 100, 
+                            app.height // 2 + 330, fill = 'gray')
+    canvas.create_text(app.width//2, app.height//2 + 295, text = "Next", font = 'Arial 40', fill = 'white')
+
+def LoreScreen_mousePressed(app,event):
+    if (event.x > app.width // 2 - 100 and event.x < app.width // 2 + 100 and
+        event.y > app.height // 2 + 260 and event.y < app.height // 2 + 330):
             app.mode = 'gameMode'
-            
-            
+
 
 runApp(width = 1200, height = 800)

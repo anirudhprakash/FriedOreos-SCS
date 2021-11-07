@@ -77,8 +77,7 @@ def generateMap(dimensions):
     board = [
         ['Grass' for i in range(dimensions)] for j in range(dimensions)
     ]
-    board[0][0] = 'BaseKosbie'
-    board[-1][-1] = 'BaseTaylor'
+    
 
     #Name region
 
@@ -146,6 +145,9 @@ def generateMap(dimensions):
                     board[x][y] = 'Farm'
                     continue
         
+        board[0][0] = 'BaseKosbie'
+        board[-1][-1] = 'BaseTaylor'
+
         if checkMap(board):
             return board
         board = [
