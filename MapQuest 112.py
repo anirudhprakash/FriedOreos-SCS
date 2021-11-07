@@ -9,6 +9,12 @@ def appStarted(app):
 
     #board
     app.board = generateMap(6)
+    app.visibility = [([0] * 6) for i in range(6)]
+    app.visibility[0][0] = 1
+    app.visibility[0][1] = 1
+    app.visibility[1][0] = 1
+    app.visibility[1][1] = 1
+
     
     app.characters = []
     app.selected = None
@@ -155,9 +161,20 @@ def soldierSelected(app,row,col):
         
     
 def gameMode_redrawAll(app,canvas):
+    canvas.create_rectangle(0,0,800,800, fill = 'blue')
     drawBoard(app,canvas)
     drawCharacters(app,canvas)
     drawCreateOptions(app,canvas)
+    drawMovesAllowed(app,canvas)
+
+def drawMovesAllowed(app,canvas):
+    for (row,col) in app.moveable:
+        circleCenterX = col * app.squareLength + app.border + app.squareLength // 2
+        circleCenterY = row * app.squareLength + app.border + app.squareLength //2
+
+        canvas.create_oval(circleCenterX - 10, circleCenterY - 10, circleCenterX + 10,
+                           circleCenterY + 10, fill = 'brown')
+
 
 def drawCreateOptions(app,canvas):
     options_center = (2 * app.border +  app.squareLength * len(app.board))
