@@ -35,19 +35,18 @@ class Piece(object):
                     if self.owner in board[self.x + dx][self.y + dy]:
                         continue
                     generatedMovesAllowed.append((self.x+dx,self.y+dy))
-
     
         return generatedMovesAllowed
     
-    def move(self,targetRow,targetCol,app):
+    def move(self,app,targetRow,targetCol):
         
-        enemyPiece = self.getPieceInCell(self,targetRow,targetCol,app)          #if enemy in targetRow, targetCol -> attack:
+        enemyPiece = self.getPieceInCell(targetRow,targetCol,app)          #if enemy in targetRow, targetCol -> attack:
         if enemyPiece != None:
             self.attack(self,enemyPiece)
             if enemyPiece.health <= 0:
                 app.characters.remove(enemyPiece)
 
-        enemyPiece = self.getPieceInCell(self,targetRow,targetCol,app)
+        enemyPiece = self.getPieceInCell(targetRow,targetCol,app)
         if enemyPiece == None: 
             self.x = targetCol
             self.y = targetRow
