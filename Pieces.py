@@ -32,12 +32,10 @@ class Piece(object):
                 if dx == 0 and dy == 0:
                     continue
                 if board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
+                    if self.owner in board[self.x + dx][self.y + dy]:
+                        continue
                     generatedMovesAllowed.append((self.x+dx,self.y+dy))
-                                
-        for cord in generatedMovesAllowed:                                                  #Check if another Team piece is in the generatedMovesAllowed:
-            for otherCharacter in app.characters:
-                if cord == otherCharacter.getCord and otherCharacter.owner == self.owner:   #if teammate in cell, remove from allowed move
-                    generatedMovesAllowed.remove(cord)
+
     
         return generatedMovesAllowed
     
