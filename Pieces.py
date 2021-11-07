@@ -15,31 +15,25 @@ class Piece(object):
     
     def getY (self):
         return self.y
-    
+
+    def generateMovesAllowed(self,board):
+        generatedMovesAllowed = []
+        for dx in range((-1*self.movesAllowed), (self.movesAllowed)+1):
+            for dy in range((-1*self.movesAllowed), (self.movesAllowed)+1):
+                if dx == 0 and dy == 0:
+                    continue
+                if board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
+                    generatedMovesAllowed.append((self.x+dx,self.y+dy))
+        return generatedMovesAllowed
+
 class Soldier(Piece):
     def __init__(self,x,y,owner):
-        self.x = x
-        self.y = y
-        self.attackDamage = 25
-        self.movesAllowed = 1
-        self.health = 50
-        self.owner = owner
+        super().__init__(self,x,y,25,1,owner,50)
 
 class Knight(Piece):
     def __init__(self,x,y,owner):
-        self.x = x
-        self.y = y
-        self.attackDamage = 40
-        self.movesAllowed = 3
-        self.health = 75
-        self.owner = owner
+        super().__init__(self,x,y,40,2,owner,75)
 
 class Archer(Piece):
     def __init__(self,x,y,owner):
-        self.x = x
-        self.y = y
-        self.attackDamage = 30
-        self.movesAllowed = 1
-        self.health = 40
-        self.owner = owner
-        self.range = 1
+        super().__init__(self,x,y,30,1,owner,40)
