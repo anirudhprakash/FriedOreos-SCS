@@ -194,8 +194,7 @@ def gameMode_redrawAll(app,canvas):
     drawCharacters(app,canvas)
     drawCreateOptions(app,canvas)
     drawMovesAllowed(app,canvas)
-    
-    #drawFog(app, canvas)
+    drawFog(app, canvas)
 
 def drawFog(app, canvas):
     for row in range(len(app.visibility)):
