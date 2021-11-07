@@ -171,11 +171,11 @@ def clearSelection(app):
     app.createable = 0
 
 def generateCreateable(app):
-    if app.gold0 >= 5:
+    if app.gold0 >= 9:
         return 3
-    elif app.gold0 >= 3:
+    elif app.gold0 >= 6:
         return 2
-    elif app.gold0 >= 2:
+    elif app.gold0 >= 4:
         return 1 
     else:
         return 0
