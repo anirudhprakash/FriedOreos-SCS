@@ -75,7 +75,7 @@ def gameMode_mousePressed(app,event):
             #check if there is a piece selected
             if app.selected != None and type(app.selected) != tuple:
                 if (row,col) in app.moveable:
-                    move(app,row,col)
+                    app.selected.move(app,row,col)
                 
                 clearSelection(app)
 
@@ -86,7 +86,7 @@ def gameMode_mousePressed(app,event):
                 print(row,col)
                 if soldier != None:
                     app.selected = soldier
-                    app.moveable = generateMoves(app,row,col)
+                    app.moveable = soldier.generateMovesAllowed(app)
                 
                 #check is structure there
                 elif app.board[row][col] == 'OutpostKosbie' or app.board[row][col] == 'BaseKosbie':
