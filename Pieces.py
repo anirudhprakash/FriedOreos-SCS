@@ -23,15 +23,10 @@ class Piece(object):
                 if dx == 0 and dy == 0:
                     continue
                 if board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
+                    if self.owner in board[self.x + dx][self.y + dy]:
+                        continue
                     generatedMovesAllowed.append((self.x+dx,self.y+dy))
 
-        #Check if player is in the generatedMovesAllowed: 
-        charactersOnBoardCords = []
-        for character in characters:
-            charactersOnBoardCords.append((character.x, character.y))
-        for cord in generatedMovesAllowed:
-            if cord in charactersOnBoardCords:
-                generatedMovesAllowed.remove(cord)
         return generatedMovesAllowed
 
 class Soldier(Piece):
