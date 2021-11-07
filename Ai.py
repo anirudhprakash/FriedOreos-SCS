@@ -188,7 +188,7 @@ def getMove(app):
             elif piece == 'Knight':
                 game.app.gold1 -= 9
                 game.app.characters.append(Knight(loc[1],loc[0],'Taylor'))
-        moveVal = minimax(game, 1, True)
+        moveVal = minimax(game, 4, True)
         if moveVal > bestVal:
             bestVal = moveVal
             bestMove = move
