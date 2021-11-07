@@ -117,7 +117,6 @@ def gameMode_mousePressed(app,event):
         app.mode = "helpScreen"
     
     if app.turn == 0:
-        getGold(app)
         if (row >= 0 and row < len(app.board) and
             col >= 0 and col < len(app.board)):
 
@@ -241,6 +240,8 @@ def drawCreateOptions(app,canvas):
 
     canvas.create_rectangle(options_center - 100, 620, options_center + 100, 680, fill = 'gray')
     canvas.create_text(options_center, 650, text = 'Help', font = 'Arial 30')
+    canvas.create_text(options_center, 500, text = f'Player Gold: {app.gold0}', font = 'Arial 30')
+
 
 
 
