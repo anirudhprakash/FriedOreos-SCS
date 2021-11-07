@@ -45,7 +45,9 @@ class Game(object):
 
         self.moves = createMoves
         for piece in self.pieces:
-            self.moves.append(['move', piece, piece.generateMovesAllowed(self.app)])
+            allowed = piece.generateMovesAllowed(self.app)
+            if len(allowed) > 0:
+                self.moves.append(['move', piece, allowed])
     
     def pickMove(self):
         self.generateMoves()
