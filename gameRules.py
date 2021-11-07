@@ -1,6 +1,5 @@
-
 import random
-
+from collections import deque
 def isExterior(x, y, dimensions):
     #Is the cell a border cell?
     if x == 0 or y == 0:
@@ -11,14 +10,55 @@ def isExterior(x, y, dimensions):
     
     return False
 
+from collections import deque
+
+
+def checkMap(board):
+    badSquares = ['Ocean', 'Mountain']
+    matrix = []
+    validSquares = []
+    for i in range(len(board)):
+        matrix.append([])
+        for j in range(len(board)):
+            if board[i][j] in badSquares:
+                matrix[i].append(120)
+            else:
+                matrix[i].append(1)
+                validSquares.append((i, j))
     
+    for i in range(len(validSquares)):
+        for j in range(i, len(validSquares)):
+            start = validSquares[i]
+            end = validSquares[j]
+            if BFS(start, end, matrix) == -1:
+                return False
+    return True
+
+
+def BFS(start, end, graph):
+    queue = [[start]]
+    seen = set([start])
+    while queue:
+        path = queue.pop(0)
+        if len(path) > 20:
+            return False
+        x, y = path[-1]
+        if x == end[0] and y == end[1]:
+            return True
+        for x2, y2 in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
+            if 0 <= x2 < len(graph) and 0 <= y2 < len(graph) and graph[x2][y2] != 120 and (x2, y2) not in seen:
+                queue.append(path + [(x2, y2)])
+                seen.add((x2, y2))
+
 
 
 def generateMap(dimensions):
     
     board = [
-        ['grass' for i in range(dimensions)] for j in range(dimensions)
+        ['Grass' for i in range(dimensions)] for j in range(dimensions)
     ]
+    board[0][0] = 'BaseKosbie'
+    board[-1][-1] = 'BaseTaylor'
 
     #Name region
 
@@ -39,86 +79,55 @@ def generateMap(dimensions):
     taylorFarmName = farmName + taylorName
 
     #Probability Region
-    probOutpostInterior = 0.3                      #We favour placing outposts near the middle for fairness.
-    probOutpostExterior = 0.1                      
+    probOutpostInterior = 0.02                      #We favour placing outposts near the middle for fairness.
+    probOutpostExterior = 0.05                      
 
-    probFarmInterior = 0.2                         #We favour placing farms along the edges.
-    probFarmExterior = 0.4
+    probFarmInterior = 0.05                         #We favour placing farms along the edges.
+    probFarmExterior = 0.02
 
-    probOcean = 0.05                               #Oceans occupy multiple squares, so their probability is cumulative over their area.
-    probMountain = 0.1                             #Mountains are one square types, so their probabilities are not cumulative.
+    probOcean = 0.15                              #Oceans occupy multiple squares, so their probability is cumulative over their area.
+    probMountain = 0.2                             #Mountains are one square types, so their probabilities are not cumulative.
 
-    for x in range(dimensions):
-        for y in range(dimensions):
-            cell = board[x][y]
-            if cell != grassName:                  #Taken, typically by an ocean as oceans exist as blocks.
+    while True:
+        for x in range(dimensions):
+            for y in range(dimensions):
+                cell = board[x][y]
+                if cell != grassName:                  #Taken, typically by an ocean as oceans exist as blocks.
+                    continue
+                randVal = random.randint(0, 100) / 100 #A random integer to decide the position of the square.
+
+                isBorder = isExterior(x, y, dimensions)    
+
+                if isBorder == True:
+                    probOutpost = probOutpostInterior
+                    probFarm = probFarmInterior
+                
+                else:
+                    probOutpost = probOutpostExterior
+                    probFarm = probFarmExterior
+                
+                if randVal < probOcean:
+                    board[x][y] = 'Ocean'
+                    continue
+                
+                elif randVal < probMountain:
+                    board[x][y] = 'Mountain'
+                    continue
+                
+                elif randVal < probOutpost + (probOcean + probMountain):
+                    board[x][y] = 'Outpost'
+                    continue
+                
+                elif randVal < probFarm + (probOcean + probMountain):
+                    board[x][y] = 'Farm'
                 continue
-            
-            randVal = random.randint(0, 100) / 100 #A random integer to decide the position of the square.
-            isBorder = isExterior(x, y, dimensions)    
-
-            if isBorder == True:
-                probOutpost = probOutpostInterior
-
-# Source: https://www.geeksforgeeks.org/breadth-first-traversal-bfs-on-a-2d-array/
-# Python3 program for the above approach
-from collections import deque as queue
-
-# Direction vectors
-dRow = [ -1, 0, 1, 0]
-dCol = [ 0, 1, 0, -1]
-
-# Function to check if a cell
-# is be visited or not
-def isValid(vis, row, col):
-
-	# If cell lies out of bounds
-	if (row < 0 or col < 0 or row >= len(board) or col >= len(board)):
-		return False
-
-	# If cell is already visited
-	if (vis[row][col]):
-		return False
-
-	# Otherwise
-	return True
-
-# Function to perform the BFS traversal
-def BFS1(grid, vis, row, col):
-
-	# Stores indices of the matrix cells
-	q = queue()
-
-	# Mark the starting cell as visited
-	# and push it into the queue
-	q.append(( row, col ))
-	vis[row][col] = True
-
-	# Iterate while the queue
-	# is not empty
-	while (len(q) > 0):
-		cell = q.popleft()
-		x = cell[0]
-		y = cell[1]
-		print(grid[x][y], end = " ")
-
-		#q.pop()
-
-		# Go to the adjacent cells
-		for i in range(4):
-			adjx = x + dRow[i]
-			adjy = y + dCol[i]
-			if (isValid(vis, adjx, adjy)):
-				q.append((adjx, adjy))
-				vis[adjx][adjy] = True
-
-
-vis = [[ False for i in range(8)] for i in range(8)]
-BFS1(board,vis,0,0)
-
-# This code is contributed by mohit kumar 29.
-
-
-
-
-
+        
+        if checkMap(board):
+            return board
+        board = [
+            ['grass' for i in range(dimensions)] for j in range(dimensions)
+        ]
+    
+    
+for i in generateMap(6):
+    print(*i)
