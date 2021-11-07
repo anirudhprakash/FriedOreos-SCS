@@ -1,8 +1,9 @@
 from cmu_112_graphics import *
-
+from gameRules import *
 def appStarted(app):
 
     #board
+    '''
     app.board = [
                    ['BaseKosbie','Grass','OutpostKosbie','Grass','Grass','Ocean'],
                    ['Grass','Grass','Grass','Farm','Grass','Ocean'],
@@ -11,6 +12,8 @@ def appStarted(app):
                    ['Grass','Grass','Grass','Mountain','Grass','Grass'],
                    ['Grass','Grass','Grass','Mountain','Grass','BaseTaylor']
                 ]
+    '''
+    app.board = generateMap(6)
     
     app.characters = []
 
@@ -44,11 +47,11 @@ def appStarted(app):
     app.farm = app.loadImage('Images/tiles/farm/farm.png')
     app.farm = app.scaleImage(app.farm, app.squareLength/100)
 
-    app.archerK = app.loadImage('Images/tiles/TA sprites/archers/alex_archer.png')
+    app.archerK = app.loadImage('Images/TA sprites/archers/alex_archer.png')
     app.archerK = app.scaleImage(app.archerK, app.squareLength/100)
-    app.archerT = app.loadImage('Images/tiles/TA sprites/archers/asad_archer.png')
+    app.archerT = app.loadImage('Images/TA sprites/archers/asad_archer.png')
     app.archerT = app.scaleImage(app.archerT, app.squareLength/100)
-    app.knightK = app.loadImage('Images/tiles/TA sprites/horseriders/zhara_horserider.png')
+    app.knightK = app.loadImage('Images/TA sprites/horseriders/zhara_horserider.png')
     app.knightK = app.scaleImage(app.knightK, app.squareLength/100)
     
     #app.warriorBen = app.loadImage('warriorben.png')
