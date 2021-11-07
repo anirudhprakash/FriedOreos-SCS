@@ -9,6 +9,7 @@ def appStarted(app):
     app.gold1 = 10
     app.turn = 0
     app.timerDelay = 500
+    app.gameState = 0
 
     #board
     app.board = generateMap(6)
@@ -27,8 +28,8 @@ def appStarted(app):
     app.mode = 'titleScreen'
     app.border = 30
     app.squareLength = (app.height - 2 * app.border) // 6 #len(app.board)
-    app.rows = 6 #len(app.board)
-    app.cols = 6 #len(app.board[0])
+    app.rows = len(app.board)
+    app.cols = len(app.board[0])
 
     #loading images
     app.cloudBackground = app.loadImage('Images/tiles/fog/fog_tile.png')
@@ -74,26 +75,46 @@ def appStarted(app):
 
     app.game_lore = app.loadImage('Images/game_lore.png')
 
+    app.win_screen = app.loadImage('Images/winscreen.png')
+    app.win_screen = app.scaleImage(app.win_screen, 3/5)
+
+    app.lose_screen = app.loadImage('Images/losescreen.png')
+    app.lose_screen = app.scaleImage(app.lose_screen, 3/5)
+
+    app.help_screen = app.loadImage('Images/helpscreen.png')
+    #app.help_screen = app.scaleImage(app.help_screen, 3/5)
+
+
 def gameMode_timerFired(app):
-    if app.turn == 1:
+    if app.gameState == 1:
+        app.mode = "winScreen"
+    elif app.gameState == 2:
+        app.mode = "loseScreen"
+    elif app.turn == 1:
         getGold(app)
         getMove(app)
         app.turn = 1 - app.turn
     
 def getGold(app):
-    if app.turn == 0:
-        app.gold0 += 1
-        for i in app.board:
+    app.gold0 += 1
+    for i in app.board:
             app.gold0 += i.count('FarmKosbie')
     
-    else:
-        app.gold1 += 1
-        for i in app.board:
+
+    app.gold1 += 1
+    for i in app.board:
             app.gold1 += i.count('FarmTaylor')
     
 def gameMode_mousePressed(app,event):
     row = getDim(app,event.y)
     col = getDim(app,event.x)
+    options_center = (2 * app.border +  app.squareLength * len(app.board))
+    options_center = options_center + (app.width - options_center) // 2 
+    
+    #click help menu
+    if (event.x > options_center - 100 and event.x < options_center + 100 and
+        event.y > 620 and event.y < 680):
+        app.mode = "helpScreen"
     
     if app.turn == 0:
         getGold(app)
@@ -123,8 +144,6 @@ def gameMode_mousePressed(app,event):
 
         #the click is outside of the game board
         else:
-            options_center = (2 * app.border +  app.squareLength * len(app.board))
-            options_center = options_center + (app.width - options_center) // 2 
             #creating a character
             if type(app.selected) == tuple:
                 if (event.x > options_center - 150 and event.x < options_center + 150 and
@@ -163,19 +182,6 @@ def generateCreateable(app):
         return 0
 
 
-
-        '''if app.selected != None:
-            if {row,col} in app.moveable:
-                move(app,row,col)
-
-        elif 'Outpost' in app.board[row][col] or 'Base' in app.board[row][col]:
-            app.selected = {row,col}
-            generateCreatable(app,row,col)
-        
-        soldier = soldierSelected(app,row,col)
-        if soldier != None:
-            app.selected = soldier
-            generateMoves(app,row,col)'''
 
 def getDim(app,dim):
     return (dim - app.border) // app.squareLength
@@ -231,6 +237,12 @@ def drawCreateOptions(app,canvas):
     if app.createable > 0:
         canvas.create_rectangle(options_center - 150, 120, options_center + 150, 180)
         canvas.create_text(options_center, 150, text = 'Soldier\t\t2G', font = 'Arial 20')
+    
+
+    canvas.create_rectangle(options_center - 100, 620, options_center + 100, 680, fill = 'gray')
+    canvas.create_text(options_center, 650, text = 'Help', font = 'Arial 30')
+
+
 
 
         
@@ -333,10 +345,30 @@ def drawBoard(app,canvas):
 
 
 
+def winScreen_redrawAll(app,canvas):
+    canvas.create_image(app.width//2, app.height//2,
+                        image=ImageTk.PhotoImage(app.win_screen))
+
+def loseScreen_redrawAll(app,canvas):
+    canvas.create_image(app.width//2, app.height//2,
+                        image=ImageTk.PhotoImage(app.lose_screen))
+
+def helpScreen_redrawAll(app,canvas):
+    canvas.create_image(app.width//2, app.height//2 - 50,
+                        image=ImageTk.PhotoImage(app.help_screen))
+    canvas.create_rectangle(app.width // 2 - 100, app.height // 2 + 265, app.width // 2 + 100, 
+                            app.height // 2 + 335, fill = 'red')
+    canvas.create_text(app.width//2, app.height//2 + 300, text = "Return", font = 'Arial 40', fill = 'white')
+
+def helpScreen_mousePressed(app,event):
+    if (event.x > app.width // 2 - 100 and event.x < app.width // 2 + 100 and
+        event.y > app.height // 2 + 265 and event.y < app.height // 2 + 335):
+            app.mode = 'gameMode'
+
 
 def titleScreen_redrawAll(app,canvas):
     canvas.create_image(app.width//2, app.height//2,
-                        image=ImageTk.PhotoImage(app.game_background))
+                        image=ImageTk.PhotoImage(app.game_background))\
 
     canvas.create_rectangle(app.width // 2 - 100, app.height // 2 + 165, app.width // 2 + 100, 
                             app.height // 2 + 235, fill = 'red')
