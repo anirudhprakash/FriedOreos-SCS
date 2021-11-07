@@ -31,10 +31,14 @@ class Piece(object):
             for dy in range((-1*self.movesAllowed), (self.movesAllowed)+1):
                 if dx == 0 and dy == 0:
                     continue
-                if app.board[self.x+dx][self.y+dy] not in ["Ocean", "Mountain"]:
-                    if self.owner in app.board[self.x + dx][self.y + dy]:
-                        continue
-                    generatedMovesAllowed.append((self.x+dx,self.y+dy))
+                newX = self.x + dx
+                newY = self.y + dy
+
+                if newX < 0 or newX >= len(app.board) or newY < 0 or newY >= len(app.board):
+                    continue
+
+                if app.board[self.y+dy][self.x + dx] not in ["Ocean", "Mountain"]:
+                    generatedMovesAllowed.append((self.y+dy,self.x+dx))
     
         return generatedMovesAllowed
     
