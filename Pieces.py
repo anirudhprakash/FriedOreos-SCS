@@ -81,12 +81,12 @@ class Piece(object):
 
 class Soldier(Piece):
     def __init__(self,x,y,owner):
-        super().__init__(x,y,250,1,owner,50)
+        super().__init__(x,y,25,1,owner,50)
 
 class Knight(Piece):
     def __init__(self,x,y,owner):
-        super().__init__(x,y,400,2,owner,1)
+        super().__init__(x,y,40,2,owner,1)
 
 class Archer(Piece):
     def __init__(self,x,y,owner):
-        super().__init__(x,y,300,1,owner,40)
+        super().__init__(x,y,30,1,owner,40)
